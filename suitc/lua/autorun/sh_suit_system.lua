@@ -10,7 +10,7 @@ local function LoadSuitsConfig()
         local default = {{
             id = "suit_combine_elite",
             name = "Combine Elite",
-            category = "Combine",
+            category = "Альянс (Костюмы)",
             model = "models/player/combine_super_soldier.mdl",
             hp = 150,
             armor = 150,
@@ -18,7 +18,12 @@ local function LoadSuitsConfig()
             run_speed = 340,
             weapons = {"weapon_ar2", "weapon_pistol"},
             bodygroups = {},
-            icon = "materials/entities/base_gmodentity.png"
+            icon = "materials/entities/base_gmodentity.png",
+            hud = {
+                default = "combine",
+                allow_player_selection = true,
+                available = {"combine"}
+            }
         }}
         file.Write(configPath, util.TableToJSON(default, true))
     end
@@ -172,7 +177,46 @@ if SERVER then
             for _, w in ipairs(suitData.weapons) do self:Give(w) end
         end
 
+        if CustomSuitsHUD and CustomSuitsHUD.SetSuitHUD then
+            CustomSuitsHUD.SetSuitHUD(self, suitData.hud)
+        end
+
         self:ChatPrint("Костюм '" .. suitData.name .. "' надет!")
+    end
+
+    function plyMeta:ClearCustomSuitOnDeath()
+        if not self.bIsWearingSuit or not self.PreSuitData then return end
+
+        local old = self.PreSuitData
+
+        if old.model and old.model ~= "" then
+            self:SetModel(old.model)
+        end
+
+        timer.Simple(0.1, function()
+            if not IsValid(self) or not old.bgroups then return end
+            for id, val in pairs(old.bgroups) do
+                self:SetBodygroup(id, val)
+            end
+        end)
+
+        self:SetMaxHealth(old.maxHp)
+        self:SetArmor(old.armor)
+        self:SetWalkSpeed(old.walk)
+        self:SetRunSpeed(old.run)
+
+        local currentHands = self:GetHands()
+        if IsValid(currentHands) and old.hands_model and old.hands_model ~= "" then
+            currentHands:SetModel(old.hands_model)
+        end
+
+        self.bIsWearingSuit = false
+
+        if CustomSuitsHUD and CustomSuitsHUD.ClearSuitHUD then
+            CustomSuitsHUD.ClearSuitHUD(self)
+        end
+
+        self.PreSuitData = nil
     end
 
     function plyMeta:RemoveCustomSuit()
@@ -202,9 +246,20 @@ if SERVER then
         for _, w in ipairs(old.weaps) do self:Give(w) end
 
         self.bIsWearingSuit = false
+
+        if CustomSuitsHUD and CustomSuitsHUD.ClearSuitHUD then
+            CustomSuitsHUD.ClearSuitHUD(self)
+        end
+
         self.PreSuitData = nil
         self:ChatPrint("Снаряжение снято.")
     end
+
+    hook.Add("PlayerDeath", "CustomSuits_ClearOnDeath", function(ply)
+        if IsValid(ply) and ply:IsPlayer() and ply.bIsWearingSuit then
+            ply:ClearCustomSuitOnDeath()
+        end
+    end)
 
     concommand.Add("remove_suit", function(ply)
         if IsValid(ply) then ply:RemoveCustomSuit() end

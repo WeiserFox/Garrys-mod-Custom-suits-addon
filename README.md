@@ -15,30 +15,43 @@
   {
     "id": "suit_combine_elite",
     "name": "Elite Combine Suit",
-    "category": "Combine",
+    "category": "Альянс (Костюмы)",
     "model": "models/player/combine_super_soldier.mdl",
     "hands_model": "models/weapons/c_arms_combine.mdl",
     "hp": 150,
     "armor": 150,
     "walk_speed": 170,
     "run_speed": 340,
-    "weapons": ["weapon_ar2", "weapon_pistol"],
+    "weapons": [
+      "weapon_ar2",
+      "weapon_pistol"
+    ],
     "bodygroups": {},
-    "icon": "materials/icons/bob.png"
+    "icon": "materials/vgui/suits/combine.png",
+    "hud": {
+      "default": "combine",
+      "allow_player_selection": true,
+      "available": [
+        "combine"
+      ]
+    }
   },
   {
     "id": "suit_rebel",
     "name": "Rebel Juggernaut",
-    "category": "Resistance",
+    "category": "Повстанцы (Костюмы)",
     "model": "models/player/group03/male_07.mdl",
     "hands_model": "",
     "hp": 200,
     "armor": 50,
     "walk_speed": 150,
     "run_speed": 300,
-    "weapons": ["weapon_shotgun", "weapon_crowbar"],
+    "weapons": [
+      "weapon_shotgun",
+      "weapon_crowbar"
+    ],
     "bodygroups": {},
-    "icon": "materials/icons/bob.png"
+    "icon": "materials/vgui/suits/rebel.png"
   }
 ]
 ```
